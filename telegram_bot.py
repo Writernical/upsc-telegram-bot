@@ -237,63 +237,126 @@ def send_otp_email(email: str, otp: str) -> bool:
 # =============================================================================
 
 def generate_questions(topic: str) -> str:
-    """Generate UPSC-style questions using Claude API."""
+    """Generate UPSC-style questions using Claude API - SAME FORMAT AS WEB APP."""
     
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     
-    prompt = f"""You are an expert UPSC exam question setter. Generate practice questions from this current affairs topic:
+    system_prompt = """You are an expert UPSC question setter. Generate 10 practice questions from the given topic.
 
-TOPIC: {topic}
+CRITICAL REQUIREMENT — 5+5 SPLIT:
+• 5 questions from PRIMARY SUBJECT (the obvious angle)
+• 5 questions from CROSS-SUBJECT ANGLES (History, Geography, Economy, Ethics, Environment — whichever connects)
 
-Generate exactly:
-1. FIVE (5) MCQ questions (Prelims style) - with 4 options each, correct answer, and trap explanation
-2. FIVE (5) Mains questions (150-250 word answer type) - with answer framework
+DISTRIBUTE AS:
+- MCQ 1-3: Primary Subject
+- MCQ 4-5: Cross-Subject Angles (DIFFERENT subjects)
+- MAINS 1-2: Primary Subject
+- MAINS 3-5: Cross-Subject Angles (include Ethics case study)
 
-IMPORTANT RULES:
-- MCQs must include UPSC-style traps (absolute words like "always/never/only", paired options, partially correct statements)
-- Mains questions must span different GS papers (GS1: History/Geography/Society, GS2: Polity/Governance/IR, GS3: Economy/Environment/S&T, GS4: Ethics)
-- Include cross-subject angles (same topic asked from different subject perspectives)
-- Provide answer frameworks with: Introduction approach, Body structure, Conclusion type, Key terms to include
+FORMAT:
 
-FORMAT YOUR RESPONSE EXACTLY LIKE THIS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 TOPIC ANALYSIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📝 PRELIMS MCQs
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+**Topic:** [News item]
+**Primary Subject:** [GS-I/II/III/IV] — [Subject name]
 
-Q1. [Question text]
-(a) Option A
-(b) Option B
-(c) Option C
-(d) Option D
+**Cross-Subject Angles:**
+• [Angle 1] — [Different GS Paper] — [Connection]
+• [Angle 2] — [Different GS Paper] — [Connection]
+• [Angle 3] — [Different GS Paper] — [Connection]
 
-✅ Answer: (x)
-⚠️ Trap: [Explain the trap]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📝 SECTION A: PRIMARY MCQs (Q1-Q3)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[Repeat for Q2-Q5]
+**Q1** | [Primary Subject] | PRIMARY
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 MAINS QUESTIONS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Question]
+(a) [Option]
+(b) [Option]
+(c) [Option]
+(d) [Option]
 
-Q1. [GS Paper] [Question text]
+✓ **Answer:** [Letter]
+⚠️ **Trap:** [Explain the trap]
+💡 **Key Point:** [1-2 lines]
 
-📌 Answer Framework:
-• Introduction: [approach]
-• Body: [key points to cover]
-• Conclusion: [type]
-• Must include: [key terms, cases, articles]
+-----
 
-[Repeat for Q2-Q5]
+[Q2, Q3 same format]
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-"""
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📝 SECTION B: CROSS-SUBJECT MCQs (Q4-Q5) 🔀
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**Q4** | [Different Subject] | CROSS-ANGLE 🔀
+
+[Question linking news to different subject]
+(a)-(d) options
+
+✓ **Answer:** [Letter]
+💡 **Cross-Link:** [How this connects to original news]
+
+-----
+
+**Q5** | [Another Subject] | CROSS-ANGLE 🔀
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📝 SECTION C: PRIMARY MAINS (M1-M2)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**M1** | [Primary Paper] | PRIMARY | 15 marks
+
+"[Question]"
+
+**Answer Framework (250 words):**
+• **Intro (30 words):** [Approach]
+• **Body (150 words):** [Key points]
+• **Conclusion (40 words):** [Balanced ending]
+
+**Must Include:** [Cases, committees, articles]
+**Avoid:** [Common mistakes]
+
+-----
+
+[M2 same format]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📝 SECTION D: CROSS-SUBJECT MAINS (M3-M5) 🔀
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**M3** | [Different Paper] | CROSS-ANGLE 🔀 | 15 marks
+**Cross-Link:** [Why UPSC asks from this angle]
+
+-----
+
+**M4** | [Another Paper] | CROSS-ANGLE 🔀
+
+-----
+
+**M5** | GS-IV | Ethics | CROSS-ANGLE 🔀 | Case Study
+
+[Ethics case study based on the topic]
+**Ethical Dimensions:** [Values at stake]
+**Framework:** [How to approach]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+RULES:
+1. Exactly 5 primary + 5 cross-subject questions
+2. Cross-subject must be GENUINELY different subjects
+3. Use real UPSC trap patterns
+4. All cases/committees must be REAL
+5. Balanced conclusions always"""
 
     try:
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=4000,
-            messages=[{"role": "user", "content": prompt}]
+            system=system_prompt,
+            messages=[{"role": "user", "content": f"Generate UPSC questions for: {topic}"}]
         )
         return response.content[0].text
     except Exception as e:
@@ -696,6 +759,24 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_text(f"...continued\n\n{chunk}")
     else:
         await update.message.reply_text(questions)
+    
+    # Send as downloadable text file
+    import io
+    file_content = f"UPSC Predictor - Generated Questions\n"
+    file_content += f"Topic: {topic}\n"
+    file_content += f"Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}\n"
+    file_content += f"{'='*50}\n\n"
+    file_content += questions
+    
+    # Create file-like object
+    file_bytes = io.BytesIO(file_content.encode('utf-8'))
+    file_bytes.name = f"UPSC_Questions_{topic[:30].replace(' ', '_')}.txt"
+    
+    await update.message.reply_document(
+        document=file_bytes,
+        filename=file_bytes.name,
+        caption="📄 Download questions as text file"
+    )
     
     # Send credits remaining
     remaining = new_free + new_paid
