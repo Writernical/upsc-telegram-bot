@@ -381,56 +381,33 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         create_user_from_telegram(telegram_id, user.username, user.first_name)
         db_user = get_user_by_telegram_id(telegram_id)
         
-        welcome_msg = """
-🎯 *UPSC Predictor Bot*
+        welcome_msg = f"""
+🎯 *Welcome to UPSC Predictor!*
 
-━━━━━━━━━━━━━━━━━━━━
-🎁 *You have 1 FREE credit!*
-━━━━━━━━━━━━━━━━━━━━
+Hi {user.first_name}! I turn current affairs into UPSC-style practice questions.
 
-*WHAT THIS BOT DOES:*
-Send any current affairs topic → Get 10 UPSC-style questions instantly
+🎁 *You have 1 FREE query!*
 
-*WHAT YOU GET:*
-• 5 Prelims MCQs (with trap explanations)
+*How to use:*
+Just send me any current affairs topic, and I'll generate:
+• 5 Prelims MCQs (with traps explained)
 • 5 Mains questions (with answer frameworks)
-• Cross-subject angles covered
-• Downloadable text file
 
-━━━━━━━━━━━━━━━━━━━━
-*HOW TO USE:*
-━━━━━━━━━━━━━━━━━━━━
+*Example topics:*
+• Governor delays NEET Bill
+• India-China LAC tensions
+• RBI digital rupee pilot
+• Semiconductor manufacturing policy
 
-1️⃣ Type a topic → Example: `Governor NEET Bill delay`
-2️⃣ Wait 20-30 seconds
-3️⃣ Get questions + downloadable file
+📌 *Commands:*
+/credits - Check your credits
+/buy - Buy more credits
+/link - Link to web account (share credits)
+/help - How to use
 
-━━━━━━━━━━━━━━━━━━━━
-*💡 LINK YOUR ACCOUNT*
-━━━━━━━━━━━━━━━━━━━━
+💡 *Tip:* Use /link to connect your upscpredictor.in account. Buy credits once, use on both platforms!
 
-*Why link?*
-• Buy credits ONCE, use on BOTH Telegram & upscpredictor.in
-• No need to buy separately for each platform
-
-*How to link:*
-1. Use /link command
-2. Enter your email
-3. Verify OTP sent to email
-4. Done! Credits sync automatically
-
-━━━━━━━━━━━━━━━━━━━━
-*COMMANDS:*
-━━━━━━━━━━━━━━━━━━━━
-
-/credits - Check balance
-/buy - Buy credits (₹12 each)
-/link - Link web account
-/help - Full guide
-
-━━━━━━━━━━━━━━━━━━━━
-
-*Try now - send a topic!* 👇
+*Send a topic to get started!*
 """
     else:
         free = db_user.get('free_credits', 0)
@@ -440,43 +417,25 @@ Send any current affairs topic → Get 10 UPSC-style questions instantly
         is_linked = not email.endswith('@telegram.placeholder')
         
         if is_linked:
-            link_status = f"✅ Linked: `{email}`"
-            link_tip = "✅ Your credits sync with upscpredictor.in"
+            link_status = f"🔗 Linked to: `{email}`"
         else:
-            link_status = "⚠️ Account not linked"
-            link_tip = """
-*💡 LINK YOUR ACCOUNT*
-Use /link to sync credits with upscpredictor.in
-Buy once, use on both platforms!"""
+            link_status = "⚠️ Not linked - use /link to connect web account"
         
         welcome_msg = f"""
-🎯 *UPSC Predictor Bot*
+🎯 *Welcome back to UPSC Predictor!*
 
-━━━━━━━━━━━━━━━━━━━━
-💳 *Credits:* {total} ({free} free + {paid} paid)
+Hi {user.first_name}!
+
+💳 *Your Credits:* {total} ({free} free + {paid} paid)
 {link_status}
-━━━━━━━━━━━━━━━━━━━━
 
-*HOW TO USE:*
-Type any current affairs topic!
+Just send me any current affairs topic to generate questions.
 
-Example: `Governor NEET Bill delay`
-
-━━━━━━━━━━━━━━━━━━━━
-*COMMANDS:*
-━━━━━━━━━━━━━━━━━━━━
-
-/credits - Check balance
-/buy - Buy credits (₹12 each)
-/link - Link web account
-/paid - Verify payment
-/help - Full guide
-
-━━━━━━━━━━━━━━━━━━━━
-
-{link_tip}
-
-*Send a topic to generate questions!* 👇
+📌 *Commands:*
+/credits - Check your credits
+/buy - Buy more credits
+/link - Link to web account
+/help - How to use
 """
     
     await update.message.reply_text(welcome_msg, parse_mode='Markdown')
@@ -485,62 +444,34 @@ Example: `Governor NEET Bill delay`
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /help command."""
     help_text = """
-📖 *UPSC Predictor Bot - Help*
+📖 *How to Use UPSC Predictor*
 
-━━━━━━━━━━━━━━━━━━━━
-*HOW TO USE*
-━━━━━━━━━━━━━━━━━━━━
+*Step 1:* Send any current affairs topic
+*Step 2:* Get 10 UPSC-style questions instantly
 
-1️⃣ Send any current affairs topic
-2️⃣ Get 10 UPSC-style questions instantly
-3️⃣ Download as text file
+*What you get:*
+• 5 Prelims MCQs with trap explanations
+• 5 Mains questions with answer frameworks
+• Cross-subject angles covered
 
-━━━━━━━━━━━━━━━━━━━━
-*COMMANDS*
-━━━━━━━━━━━━━━━━━━━━
+*Tips for best results:*
+• Be specific: "RBI monetary policy Feb 2025" > "economy"
+• Include context: "India-Maldives diplomatic row over Lakshadweep"
+• Current affairs work best
 
-/start - Start bot & get 1 free credit
+*Commands:*
+/start - Start the bot
 /credits - Check your balance
-/buy - Purchase credits (₹12 each)
-/link - Link web account (share credits!)
-/paid - Check if payment was received
+/buy - Purchase credits
+/link - Link to web account (share credits!)
 /help - This message
 
-━━━━━━━━━━━━━━━━━━━━
-*HOW CREDITS WORK*
-━━━━━━━━━━━━━━━━━━━━
+*Pricing:* ₹12 per query
 
-• 1 credit = 10 questions (5 MCQ + 5 Mains)
-• Credits work on BOTH Telegram & upscpredictor.in
-• Link your account to share credits across platforms
-
-━━━━━━━━━━━━━━━━━━━━
-*HOW TO BUY CREDITS*
-━━━━━━━━━━━━━━━━━━━━
-
-*If account is linked:*
-1. Use /buy → Click "Pay ₹12"
-2. Use your linked email in Razorpay
-3. Click "I've Paid" after payment
-
-*If not linked:*
-1. Use /link first → Enter email → Verify OTP
-2. Then /buy as above
-
-━━━━━━━━━━━━━━━━━━━━
-*HOW TO LINK ACCOUNTS*
-━━━━━━━━━━━━━━━━━━━━
-
-1. Use /link command
-2. Enter email you use on upscpredictor.in
-3. Check email for OTP
-4. Enter OTP to verify
-5. Done! Credits now sync automatically
-
-━━━━━━━━━━━━━━━━━━━━
+💡 *How to link accounts:*
+Use /link → Enter your upscpredictor.in email → Verify OTP → Done! Credits sync on both platforms.
 
 *Support:* @writernical
-*Web:* upscpredictor.in
 """
     await update.message.reply_text(help_text, parse_mode='Markdown')
 
@@ -591,57 +522,34 @@ async def buy_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     is_linked = user and not email.endswith('@telegram.placeholder')
     
     if is_linked:
-        keyboard = [
-            [InlineKeyboardButton("💳 Pay ₹12 per Credit", url=RAZORPAY_PAYMENT_URL)],
-            [InlineKeyboardButton("✅ I've Paid - Check Now", callback_data="check_payment")]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        
-        buy_msg = f"""
-🛒 *Buy Credits*
-
-*Price:* ₹12 per credit
-*1 credit = 10 UPSC questions*
-
-━━━━━━━━━━━━━━━━━━━━
-✅ *Your linked email:* `{email}`
-━━━━━━━━━━━━━━━━━━━━
-
-*Steps:*
-1️⃣ Click "Pay ₹12" button below
-2️⃣ Use email: `{email}` when paying
-3️⃣ Complete payment
-4️⃣ Come back here & click "I've Paid"
-
-⚠️ *IMPORTANT:* Use the SAME email `{email}` in Razorpay!
-"""
+        email_note = f"✅ Your linked email: `{email}`\nUse this email when paying!"
     else:
-        keyboard = [
-            [InlineKeyboardButton("🔗 Link Account First", callback_data="start_link")],
-            [InlineKeyboardButton("💳 Pay Anyway", url=RAZORPAY_PAYMENT_URL)]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        
-        buy_msg = """
+        email_note = "⚠️ Link your account first with /link so credits sync automatically!"
+    
+    keyboard = [
+        [InlineKeyboardButton("💳 Buy Credits (₹12 each)", url=RAZORPAY_PAYMENT_URL)],
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    buy_msg = f"""
 🛒 *Buy Credits*
 
 *Price:* ₹12 per credit
+*1 credit = 10 UPSC-style questions*
 
-⚠️ *Account Not Linked!*
+{email_note}
 
-For automatic credit sync, link your account first:
-1️⃣ Click "Link Account First" below
-2️⃣ Enter your email & verify OTP
-3️⃣ Then buy credits
+After payment:
+1. If linked → Credits auto-sync
+2. If not linked → Use /link first
 
-*Or* pay anyway and use /paid command after payment.
+💡 Credits work on both Telegram and upscpredictor.in!
 """
-    
     await update.message.reply_text(buy_msg, parse_mode='Markdown', reply_markup=reply_markup)
 
 
 async def paid_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /paid command - check for recent payment."""
+    """Handle /paid command - refresh credits from database."""
     telegram_id = update.effective_user.id
     user = get_user_by_telegram_id(telegram_id)
     
@@ -658,46 +566,24 @@ async def paid_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not is_linked:
         await update.message.reply_text(
             "⚠️ *Account not linked!*\n\n"
-            "To check payment, I need to know your email.\n\n"
-            "Use /link to connect your web account first, then try /paid again.",
+            "Use /link to connect your web account first.\n\n"
+            "After linking, credits sync automatically!",
             parse_mode='Markdown'
         )
         return
     
+    # Refresh credits from database
+    free = user.get('free_credits', 0)
+    paid = user.get('paid_credits', 0)
+    total = free + paid
+    
     await update.message.reply_text(
-        f"🔍 *Checking payments for:* `{email}`\n\nPlease wait...",
+        f"💳 *Your Credits*\n\n"
+        f"Email: `{email}`\n"
+        f"Credits: *{total}* ({free} free + {paid} paid)\n\n"
+        f"💡 If you just paid, use Quick Login on upscpredictor.in with this email to sync credits.",
         parse_mode='Markdown'
     )
-    
-    # Check Razorpay for pending payments
-    try:
-        pending = check_razorpay_payments(email)
-        if pending > 0:
-            # Refresh user data
-            user = get_user_by_telegram_id(telegram_id)
-            total = user.get('free_credits', 0) + user.get('paid_credits', 0)
-            await update.message.reply_text(
-                f"✅ *Payment found!*\n\n"
-                f"Added *{pending}* credit(s) to your account.\n\n"
-                f"💳 *Total credits:* {total}",
-                parse_mode='Markdown'
-            )
-        else:
-            await update.message.reply_text(
-                "❌ *No new payments found.*\n\n"
-                "Make sure you:\n"
-                f"• Used email `{email}` when paying\n"
-                "• Completed the payment\n"
-                "• Wait 1-2 minutes after payment\n\n"
-                "Try again or contact @writernical for help.",
-                parse_mode='Markdown'
-            )
-    except Exception as e:
-        logger.error(f"Error checking payments: {e}")
-        await update.message.reply_text(
-            "❌ Error checking payments. Try again later or contact @writernical.",
-            parse_mode='Markdown'
-        )
 
 
 def check_razorpay_payments(email: str) -> int:
